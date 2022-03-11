@@ -118,7 +118,7 @@ module.exports = async function upwrite(options) {
       // Write Nunjucks output as {input...}/index.html
       .then((page) => fs.outputFile(path.join(outdir, pathname, 'index.html'), page))
       // Return data for RSS item
-      .then(() => ({ content: data.html, fm: data.fm, ...meta }));
+      .then(() => ({ content: data.html, ...data.fm, ...meta }));
   }
 
   // Find all .md files in input dir

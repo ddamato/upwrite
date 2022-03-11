@@ -2,6 +2,7 @@
 title: My second post
 description: You should all still read it
 date: 2022-03-11 07:16:55
+template: templates/no-date.njk
 ---
 
 # It all started

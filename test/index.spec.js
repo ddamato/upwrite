@@ -7,6 +7,10 @@ describe('upwrite', function () {
   });
 
   it('should process files from cwd', async function () {
-    await upwrite();
+    try {
+      await upwrite();
+    } catch (err) {
+      console.log(err)
+    }
   })
 });

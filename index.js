@@ -8,37 +8,74 @@ const { Feed } = require('feed');
 const md = require('markdown-it')();
 const cwd = process.cwd();
 
-function getFeed(name) {
-  return fs.readFile(path.resolve(cwd, `${name}.json`), 'utf8')
+/**
+ * Create a feed instance from .json config
+ * 
+ * @param {String} name - filename for the feed
+ * @returns {Promise} - a new Feed instance
+ */
+function getFeed(filepath) {
+  return fs.readFile(path.resolve(cwd, filepath), 'utf8')
     .then((json) => new Feed(JSON.parse(json)));
 }
 
+/**
+ * Sort objects by date key
+ * 
+ * @param {Object} a - First comparison data
+ * @param {Object} b - Second comparison data
+ * @returns {Number} - Comparison for sorting
+ */
 function byDate(a, b) {
   const aTime = new Date(a.date).getTime();
   const bTime = new Date(b.date).getTime();
   return bTime - aTime;
 }
 
+/**
+ * Creates a Nunjucks render promise
+ * 
+ * @param  {...any} args - Pass through arguments
+ * @returns {Promise} - Nunjucks render promise
+ */
 function render(...args) {
   return new Promise((resolve, reject) => {
     nunjucks.render(...args, (err, data) => err ? reject(err) : resolve(data))
   });
 }
 
-module.exports = async function main(options) {
+/**
+ * 
+ * @param {Object} options - Configuration options
+ * @param {String} options.input - Directory where to find .md files
+ * @param {String} options.output - Directory to write files for public site
+ * @param {String} options.rss - File name of the .json configuration for the feed, used to name the resulting .xml file.
+ * @param {String} options.template - The base Nunjucks template to render with. Can be overridden with front-matter.
+ * @returns {Promise} - Resolves to files
+ *  [options.output]/[options.input]/md-file-name/index.html
+ *  [options.output]/[options.rss].xml
+ */
+module.exports = async function upwrite(options) {
 
   const {
-    output = '_site/',
     input = 'posts/',
-    rss = 'feed',
+    output = '_site/',
+    rss = 'feed.json',
     template: postTemplate = 'templates/post.njk',
   } = options || {};
 
   const indir = path.resolve(cwd, input);
   const outdir = path.resolve(cwd, output);
+  const { name } = path.parse(rss);
 
   const feed = await getFeed(rss);
 
+  /**
+   * Creates metadata for feed item
+   * 
+   * @param {String} filepath - path to the current file
+   * @returns {Object} - metadata about the file for feed item
+   */
   function metadata(filepath) {
     const { name, dir } = path.parse(filepath);
     const pathname = path.join(path.relative(cwd, dir), name);
@@ -47,6 +84,12 @@ module.exports = async function main(options) {
     return { link, id };
   }
 
+  /**
+   * Create context for Nunjucks rendering
+   * 
+   * @param {String} contents - file contents
+   * @returns {Object} - name: template to use for rendering, data: sent to the renderer
+   */
   function context(contents) {
     const { attributes, body } = frontmatter(contents);
     const { template, ...fm } = attributes;
@@ -56,6 +99,12 @@ module.exports = async function main(options) {
     }
   }
 
+  /**
+   * Process each file
+   * 
+   * @param {Array} entry - A found item to be processed [filepath, contents]
+   * @returns {Promise} - Nunjucks render / write file promise, resolving to feed items
+   */
   function process([ filepath, contents ]) {
     // Metadata for the RSS feed, (url, guid)
     const meta = metadata(filepath);
@@ -79,5 +128,5 @@ module.exports = async function main(options) {
     // Sort for returning data for RSS items
     .then((items) => items.sort(byDate).forEach((item) => feed.addItem(item)))
     // Write the RSS feed
-    .then(() => fs.outputFile(path.join(outdir, `${rss}.xml`), feed.rss2()))
+    .then(() => fs.outputFile(path.join(outdir, `${name}.xml`), feed.rss2()))
 }

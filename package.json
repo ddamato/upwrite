@@ -3,9 +3,6 @@
   "version": "0.0.0",
   "description": "Configuring a blog is annoying, let's do better.",
   "main": "index.js",
-  "scripts": {
-    "test": "rm -rf _site/ && nyc mocha"
-  },
   "bin": {
     "upwrite": "bin/upwrite.js"
   },

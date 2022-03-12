@@ -167,6 +167,7 @@ module.exports = async function upwrite(options) {
     const data = {
       post: { html: ctx.html, fm },
       posts,
+      page: feed.options,
     };
     const name =  path.resolve(base, template || postTemplate);
     return render(name, data).then((page) => fs.outputFile(path.join(outdir, meta.pathname, 'index.html'), page))

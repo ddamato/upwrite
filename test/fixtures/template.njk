@@ -2,12 +2,12 @@
 <html>
   <head>
     <!-- Any metadata found in the front-matter is at `md.fm` -->
-    <title>{{ md.fm.title }}</title>
-    <meta name="description" content="{{ md.fm.description }}">
+    <title>{{ post.fm.title }}</title>
+    <meta name="description" content="{{ post.fm.description }}">
   </head>
   <body>
-    <datetime>{{ md.fm.date }}</datetime>
+    <datetime>{{ post.fm.date }}</datetime>
     <!-- Use the "safe" filter in Nunjucks to render `md.html` as html -->
-    <main>{{ md.html | safe }}</main>
+    <main>{{ post.html | safe }}</main>
   </body>
 </html>

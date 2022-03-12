@@ -135,11 +135,7 @@ module.exports = async function upwrite(options) {
    */
   function context(contents) {
     const { attributes, body } = frontmatter(contents);
-    const { template, ...fm } = attributes;
-    return {
-      name: path.resolve(base, template || postTemplate),
-      markdown: { html: md.render(body), fm }
-    }
+    return { html: md.render(body), fm: attributes }
   }
 
   /**
@@ -150,26 +146,34 @@ module.exports = async function upwrite(options) {
    */
   function generate([ filepath, contents ]) {
     // Metadata for the RSS feed, (url, guid)
-    const { pathname, ...meta } = metadata(filepath);
+    const meta = metadata(filepath);
     // Data for Nunjucks render
-    const { name, markdown } = context(contents.toString());
-    
-    // Nunjucks render promise
-    return render(name, { md: markdown })
-      // Write Nunjucks output as {input...}/index.html
-      .then((page) => fs.outputFile(path.join(outdir, pathname, 'index.html'), page))
-      // Return data for RSS item
-      .then(() => ({ content: markdown.html, ...markdown.fm, ...meta }));
+    const ctx = context(contents.toString());
+
+    return { meta, ctx };
   }
 
   // Get all filepaths, partition by markdown
   const [ rest, markdown ] = await getFilePaths(indir);
 
   // Read contents of markdown files
-  const items = await Promise.all(markdown.map(readFile))
-    // Generate data, render html
+  const posts = await Promise.all(markdown.map(readFile))
+    // Generate data
     .then((contents) => Promise.all(contents.map(generate)));
   
+  // Write Nunjucks files
+  await Promise.all(posts.map(({ ctx, meta }) => {
+    const { template, ...fm } = ctx.fm;
+    const data = {
+      post: { html: ctx.html, fm },
+      posts,
+    };
+    const name =  path.resolve(base, template || postTemplate);
+    return render(name, data).then((page) => fs.outputFile(path.join(outdir, meta.pathname, 'index.html'), page))
+  }));
+  
+  const items = posts.map(({ ctx, meta }) => ({ content: ctx.html, ...ctx.fm, ...meta }));
+
   // Prepare items for RSS feed
   items.sort(byDate).map((item) => feed.addItem(item));
   

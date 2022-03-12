@@ -1,3 +1,3 @@
 node_modules/
-test/_output
+test/fixtures/_output
 .nyc_output

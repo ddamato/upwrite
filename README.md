@@ -1,4 +1,5 @@
 # upwrite
+[![npm version](https://img.shields.io/npm/v/upwrite.svg)](https://www.npmjs.com/package/upwrite)
 
 Configuring a blog is annoying, let's do better.
 

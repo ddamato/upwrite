@@ -10,8 +10,15 @@
     "type": "git",
     "url": "git+https://github.com/ddamato/upwrite.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "blog",
+    "writing",
+    "front-matter",
+    "markdown",
+    "nunjucks",
+    "rss"
+  ],
+  "author": "Donnie D'Amato <fauxserious@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ddamato/upwrite/issues"

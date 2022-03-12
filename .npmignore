@@ -1,8 +1,1 @@
 node_modules/
-_site/
-.nyc_output/
-posts/
-templates/
-test/
-feed.json
-feed.xml

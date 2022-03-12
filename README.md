@@ -39,6 +39,17 @@ upwrite(options).then(done).catch(err);
 | `rss` | `-r` | `feed.json` | The `.json` file which informs the RSS feed. [More](#feedjson) |
 | `template` | `-t` | `templates/post.njk` | The [`nunjucks`] template to use for the transformation. [More](#Templates) |
 | `copy` | `-c` | `true` | Copies non-markdown files into the `output` directory in the same structure. [More](#non-markdown-files) |
+
+CLI options example:
+
+```sh
+upwrite -i blog -o public -r rss.json -t nunjucks/blog.html
+```
+
+- Looks at the `blog/` directory for files.
+- Outputs to the `public/` directory; creating `public/blog/`
+- References the `rss.json` file to initialize the feed. Writes `public/rss.xml`
+- Uses template found at `nunjucks/blog.html`
 ## Setup
 
 ```text
@@ -109,7 +120,7 @@ This `.json` file is the starting point to create the RSS feed. It has the follo
 }
 ```
 
-The `link` field is *escpecially required* as it's used to construct post urls alongside the file structure of your project. The name of this file (`feed`) is used to name the resulting `.xml` file of the feed (`feed.xml`).
+The `link` field is *escpecially required* as it's used to construct post urls alongside the file structure of your project. The name of this file (`feed`) is used to name the resulting `.xml` file of the feed (`feed.xml`) and can be changed in the [options](#options).
 
 ## Output
 
@@ -122,7 +133,7 @@ The `link` field is *escpecially required* as it's used to construct post urls a
             └── 📄 index.html
 ```
 
-- The `feed.xml` file is your RSS feed based on `feed.json` and the `.md` files found in the `posts/` directory.
+- The `feed.xml` file is your RSS feed based on [`feed.json`](#feedjson) and the `.md` files found in the `posts/` directory.
 - The `posts/` directory in `_site/` will maintain the same structure of the source `.md` files but write `index.html` files instead of `[markdown-filename].html`. This allows for clean urls.
 
 ```diff

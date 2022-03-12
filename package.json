@@ -1,6 +1,6 @@
 {
   "name": "upwrite",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Configuring a blog is annoying, let's do better.",
   "main": "index.js",
   "bin": {

@@ -4,8 +4,8 @@
 Configuring a blog is annoying, let's do better.
 
 - Maintains folder structure of files for posts
-- Uses [`markdown-it`] to transform Markdown into HTML (`md.html` in templates).
-- Pipes [`front-matter`] to [`nunjucks`] templates under `fm` key (`md.fm.title`).
+- Uses [`markdown-it`] to transform Markdown into HTML (`post.html` in templates).
+- Pipes [`front-matter`] to [`nunjucks`] templates under `fm` key (`post.fm.title`).
 - Setup [`front-matter`] for RSS feed metadata.
 - Write RSS feed from posts using [`feed`].
 - Write `sitemap.txt` from contents.
@@ -92,20 +92,20 @@ template: templates/no-date.njk
 
 ### Templates
 
-The templates are transformed using [`nunjucks`]. Much of the data collected through processing is found on a `md` key within the file. You'll commonly have the following basic template setup:
+The templates are transformed using [`nunjucks`]. Much of the data collected through processing is found on a `post` key within the file. You'll commonly have the following basic template setup:
 
 ```html
 <!doctype>
 <html>
   <head>
-    <!-- Any metadata found in the front-matter is at `md.fm` -->
-    <title>{{ md.fm.title }}</title>
-    <meta name="description" content="{{ md.fm.description }}">
+    <!-- Any metadata found in the front-matter is at `post.fm` -->
+    <title>{{ post.fm.title }}</title>
+    <meta name="description" content="{{ post.fm.description }}">
   </head>
   <body>
-    <datetime>{{ md.fm.date }}</datetime>
-    <!-- Use the "safe" filter in Nunjucks to render `md.html` as html -->
-    <main>{{ md.html | safe }}</main>
+    <datetime>{{ post.fm.date }}</datetime>
+    <!-- Use the "safe" filter in Nunjucks to render `post.html` as html -->
+    <main>{{ post.html | safe }}</main>
   </body>
 </html>
 ```

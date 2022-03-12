@@ -37,8 +37,8 @@ upwrite(options).then(done).catch(err);
 | Key | CLI shortcut | Default | Description |
 | --- | ------------ | ------- | ----------- |
 | `input` | `-i` | `posts/` | Directory where your content to be transformed exists. [More](#posts) |
-| `output` | `-o` | `_site` | Directory where the final output should be written. [More](#output) |
-| `rss` | `-r` | `feed.json` | The `.json` file which informs the RSS feed. [More](#feedjson) |
+| `output` | `-o` | `_site/` | Directory where the final output should be written. [More](#output) |
+| `rss` | `-r` | `feed.json` | The `.json` file which informs the RSS feed also indicates the working directory. [More](#feedjson) |
 | `template` | `-t` | `templates/post.njk` | The [`nunjucks`] template to use for the transformation. [More](#Templates) |
 | `copy` | `-c` | `true` | Copies non-markdown files into the `output` directory in the same structure. [More](#non-markdown-files) |
 
@@ -123,6 +123,17 @@ This `.json` file is the starting point to create the RSS feed. It has the follo
 ```
 
 The `link` field is *escpecially required* as it's used to construct post urls alongside the file structure of your project. The name of this file (`feed`) is used to name the resulting `.xml` file of the feed (`feed.xml`) and can be changed in the [options](#options).
+
+The path to the `feed.json` also sets the *base* of your working directory. This allows you to change where all the other filepaths start from.
+
+```js
+ await upwrite({
+    rss: 'website/feed.json',
+    input: 'posts', // actually at website/posts
+    output: '_site/', // actually at website/_site
+    template: 'post.njk', // actually at website/post.njk
+  });
+```
 
 ## Output
 

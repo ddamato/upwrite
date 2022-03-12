@@ -8,6 +8,11 @@ const { Feed } = require('feed');
 const md = require('markdown-it')();
 const cwd = process.cwd();
 
+function getBase(filepath) {
+  const { dir } = path.parse(filepath);
+  return path.join(cwd, path.relative(cwd, dir));
+}
+
 /**
  * Create a feed instance from .json config
  * 
@@ -90,10 +95,10 @@ module.exports = async function upwrite(options) {
     template: postTemplate = 'templates/post.njk',
   } = options || {};
 
-  const indir = path.resolve(cwd, input);
-  const outdir = path.resolve(cwd, output);
+  const base = getBase(rss);
+  const indir = path.resolve(base, input);
+  const outdir = path.resolve(base, output);
   const { name } = path.parse(rss);
-
   const feed = await getFeed(rss);
 
   /**
@@ -104,7 +109,7 @@ module.exports = async function upwrite(options) {
    */
   function metadata(filepath) {
     const { name, dir } = path.parse(filepath);
-    const pathname = path.join(path.relative(cwd, dir), name);
+    const pathname = path.join(path.relative(base, dir), name);
     const link = new URL(pathname, feed.options.link).toString();
     const id = crypto.createHash('md5').update(link).digest('hex');
     return { link, id, pathname };
@@ -132,7 +137,7 @@ module.exports = async function upwrite(options) {
     const { attributes, body } = frontmatter(contents);
     const { template, ...fm } = attributes;
     return {
-      name: path.resolve(cwd, template || postTemplate),
+      name: path.resolve(base, template || postTemplate),
       markdown: { html: md.render(body), fm }
     }
   }
@@ -162,11 +167,11 @@ module.exports = async function upwrite(options) {
 
   // Read contents of markdown files
   const items = await Promise.all(markdown.map(readFile))
-  // Generate data, render html
-    .then((contents) => contents.map(generate));
+    // Generate data, render html
+    .then((contents) => Promise.all(contents.map(generate)));
   
   // Prepare items for RSS feed
-  items.sort(byDate).forEach((item) => feed.addItem(item));
+  items.sort(byDate).map((item) => feed.addItem(item));
   
   // Write the feed
   await fs.outputFile(path.join(outdir, `${name}.xml`), feed.rss2());

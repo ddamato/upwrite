@@ -1,0 +1,13 @@
+<!doctype>
+<html>
+  <head>
+    <!-- Any metadata found in the front-matter is at `md.fm` -->
+    <title>{{ md.fm.title }}</title>
+    <meta name="description" content="{{ md.fm.description }}">
+  </head>
+  <body>
+    <datetime>{{ md.fm.date }}</datetime>
+    <!-- Use the "safe" filter in Nunjucks to render `md.html` as html -->
+    <main>{{ md.html | safe }}</main>
+  </body>
+</html>

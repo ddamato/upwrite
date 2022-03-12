@@ -1,0 +1,4 @@
+https://www.example.com
+https://www.example.com/posts/nested/third-post
+https://www.example.com/posts/second-post
+https://www.example.com/posts/first-post

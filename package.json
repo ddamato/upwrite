@@ -1,7 +1,7 @@
 {
   "name": "upwrite",
   "version": "0.0.0",
-  "description": "",
+  "description": "Configuring a blog is annoying, let's do better.",
   "main": "index.js",
   "scripts": {
     "test": "rm -rf _site/ && nyc mocha"
@@ -22,10 +22,10 @@
   "homepage": "https://github.com/ddamato/upwrite#readme",
   "dependencies": {
     "commander": "^9.0.0",
+    "fast-glob": "^3.2.11",
     "feed": "^4.2.2",
     "front-matter": "^4.0.2",
     "fs-extra": "^10.0.1",
-    "glob-contents": "^0.0.3",
     "markdown-it": "^12.3.2",
     "nunjucks": "^3.2.3"
   },

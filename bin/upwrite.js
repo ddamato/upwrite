@@ -2,11 +2,11 @@
 
 const { Command } = require('commander');
 const program = new Command();
-const pkg = require('../package.json');
+const { version } = require('../package.json');
 const upwrite = require('../');
 
 program
-  .version(pkg.version, '-v, --version')
+  .version(version, '-v, --version')
   .option('-i, --input', 'Path to markdown files', 'posts/')
   .option('-o, --output', 'Directory for the output', '_site/')
   .option('-r, --rss', 'Path to the rss configuration JSON file', 'feed.json')

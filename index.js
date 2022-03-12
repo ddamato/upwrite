@@ -1,7 +1,7 @@
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs-extra');
-const glob = require('glob-contents');
+const glob = require('fast-glob');
 const frontmatter = require('front-matter');
 const nunjucks = require('nunjucks');
 const { Feed } = require('feed');
@@ -45,6 +45,31 @@ function render(...args) {
 }
 
 /**
+ * Gets the filepath for all files in directory
+ * 
+ * @param {String} dir - Directory to search
+ * @returns {Array<Array>} - Tuple with the filepath and contents
+ */
+async function getFilePaths(dir) {
+  const files = await glob(path.join(dir, '**/*'));
+  return files.reduce((acc, file) => {
+    acc[Number(path.parse(file).ext === '.md')].push(file);
+    return acc;
+  }, [[], []]);
+}
+
+/**
+ * Gets contents of a file
+ * 
+ * @param {String} filepath - Path to file
+ * @returns {Array<Array>} - Tuple with filepath and contents
+ */
+async function readFile(filepath) {
+  const contents = await fs.readFile(filepath);
+  return [ filepath, contents ]
+}
+
+/**
  * 
  * @param {Object} options - Configuration options
  * @param {String} options.input - Directory where to find .md files
@@ -58,6 +83,7 @@ function render(...args) {
 module.exports = async function upwrite(options) {
 
   const {
+    copy = true,
     input = 'posts/',
     output = '_site/',
     rss = 'feed.json',
@@ -81,7 +107,19 @@ module.exports = async function upwrite(options) {
     const pathname = path.join(path.relative(cwd, dir), name);
     const link = new URL(pathname, feed.options.link).toString();
     const id = crypto.createHash('md5').update(link).digest('hex');
-    return { link, id };
+    return { link, id, pathname };
+  }
+
+  /**
+   * Copy non-markdown files
+   * 
+   * @param {String} filepath - Path to the file
+   * @returns {Promise} - Resolves with file copied to new destination
+   */
+  function copyFiles(filepath) {
+    const { ext } = path.parse(filepath);
+    const { pathname } = metadata(filepath);
+    return fs.copy(filepath, path.resolve(outdir, pathname + ext));
   }
 
   /**
@@ -95,7 +133,7 @@ module.exports = async function upwrite(options) {
     const { template, ...fm } = attributes;
     return {
       name: path.resolve(cwd, template || postTemplate),
-      data: { html: md.render(body), fm }
+      markdown: { html: md.render(body), fm }
     }
   }
 
@@ -105,28 +143,33 @@ module.exports = async function upwrite(options) {
    * @param {Array} entry - A found item to be processed [filepath, contents]
    * @returns {Promise} - Nunjucks render / write file promise, resolving to feed items
    */
-  function process([ filepath, contents ]) {
+  function generate([ filepath, contents ]) {
     // Metadata for the RSS feed, (url, guid)
-    const meta = metadata(filepath);
+    const { pathname, ...meta } = metadata(filepath);
     // Data for Nunjucks render
-    const { name, data } = context(contents);
-    // Reconstruct path to url
-    const { pathname } = new URL(meta.link);
+    const { name, markdown } = context(contents.toString());
     
     // Nunjucks render promise
-    return render(name, data)
+    return render(name, { md: markdown })
       // Write Nunjucks output as {input...}/index.html
       .then((page) => fs.outputFile(path.join(outdir, pathname, 'index.html'), page))
       // Return data for RSS item
-      .then(() => ({ content: data.html, ...data.fm, ...meta }));
+      .then(() => ({ content: markdown.html, ...markdown.fm, ...meta }));
   }
 
-  // Find all .md files in input dir
-  return glob(path.join(indir, '*.md'))
-    // Process all the files
-    .then((res) => Promise.all(Object.entries(res).map(process)))
-    // Sort for returning data for RSS items
-    .then((items) => items.sort(byDate).forEach((item) => feed.addItem(item)))
-    // Write the RSS feed
-    .then(() => fs.outputFile(path.join(outdir, `${name}.xml`), feed.rss2()))
+  // Get all filepaths, partition by markdown
+  const [ rest, markdown ] = await getFilePaths(indir);
+
+  // Read contents of markdown files
+  await Promise.all(markdown.map(readFile))
+  // Generate data, render html
+    .then((contents) => contents.map(generate))
+  // Prepare items for RSS feed
+    .then((items) => items.sort(byDate).forEach((item) => feed.addItem(item)));
+  
+  // Write the feed
+  await fs.outputFile(path.join(outdir, `${name}.xml`), feed.rss2());
+
+  // Copy non-markdown files to new directory structure
+  if (copy) await Promise.all(rest.map(copyFiles));
 }

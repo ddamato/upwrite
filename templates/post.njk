@@ -1,11 +1,11 @@
 <!doctype>
 <html>
   <head>
-    <title>{{ fm.title }}</title>
-    <meta name="description" content="{{ fm.description }}">
+    <title>{{ md.fm.title }}</title>
+    <meta name="description" content="{{ md.fm.description }}">
   </head>
   <body>
-    <datetime>{{ fm.date }}</datetime>
-    <main>{{ html | safe }}</main>
+    <datetime>{{ md.fm.date }}</datetime>
+    <main>{{ md.html | safe }}</main>
   </body>
 </html>

@@ -8,6 +8,7 @@ Configuring a blog is annoying, let's do better.
 - Pipes [`front-matter`] to [`nunjucks`] templates under `fm` key (`md.fm.title`).
 - Setup [`front-matter`] for RSS feed metadata.
 - Write RSS feed from posts using [`feed`].
+- Write `sitemap.txt` from contents.
 
 ## Install
 
@@ -129,12 +130,14 @@ The `link` field is *escpecially required* as it's used to construct post urls a
 📁 ./
 └── 📁 _site
     ├── 📄 feed.xml
+    ├── 📄 sitemap.txt
     └── 📁 posts
         └── 📁 [markdown-filename]
             └── 📄 index.html
 ```
 
 - The `feed.xml` file is your RSS feed based on [`feed.json`](#feedjson) and the `.md` files found in the `posts/` directory.
+- The `sitemap.txt` is a list of all the urls processed by the transformer, used as a sitemap.
 - The `posts/` directory in `_site/` will maintain the same structure of the source `.md` files but write `index.html` files instead of `[markdown-filename].html`. This allows for clean urls.
 
 ```diff

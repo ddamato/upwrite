@@ -161,14 +161,19 @@ module.exports = async function upwrite(options) {
   const [ rest, markdown ] = await getFilePaths(indir);
 
   // Read contents of markdown files
-  await Promise.all(markdown.map(readFile))
+  const items = await Promise.all(markdown.map(readFile))
   // Generate data, render html
-    .then((contents) => contents.map(generate))
+    .then((contents) => contents.map(generate));
+  
   // Prepare items for RSS feed
-    .then((items) => items.sort(byDate).forEach((item) => feed.addItem(item)));
+  items.sort(byDate).forEach((item) => feed.addItem(item));
   
   // Write the feed
   await fs.outputFile(path.join(outdir, `${name}.xml`), feed.rss2());
+
+  // Write the sitemap
+  const sitemap = [feed.options].concat(items).map(({ link }) => link).join('\n');
+  await fs.outputFile(path.join(outdir, 'sitemap.txt'), sitemap);
 
   // Copy non-markdown files to new directory structure
   if (copy) await Promise.all(rest.map(copyFiles));

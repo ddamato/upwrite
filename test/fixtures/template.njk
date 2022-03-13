@@ -1,3 +1,6 @@
+---
+humandate: (date) => new Date(date).toDateString();
+---
 <!doctype>
 <html>
   <head>
@@ -6,7 +9,7 @@
     <meta name="description" content="{{ post.fm.description }}">
   </head>
   <body>
-    <datetime>{{ post.fm.date }}</datetime>
+    <datetime>{{ post.fm.date | humandate }}</datetime>
     <!-- Use the "safe" filter in Nunjucks to render `md.html` as html -->
     <main>{{ post.html | safe }}</main>
   </body>

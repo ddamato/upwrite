@@ -8,6 +8,15 @@ const { Feed } = require('feed');
 const md = require('markdown-it')();
 const cwd = process.cwd();
 
+const env = new nunjucks.Environment();
+
+function requireFromString(src, filename) {
+  const m = new module.constructor();
+  m.paths = module.paths;
+  m._compile(src, filename);
+  return m.exports;
+}
+
 function getBase(filepath) {
   const { dir } = path.parse(filepath);
   return path.join(cwd, path.relative(cwd, dir));
@@ -38,18 +47,6 @@ function byDate(a, b) {
 }
 
 /**
- * Creates a Nunjucks render promise
- * 
- * @param  {...any} args - Pass through arguments
- * @returns {Promise} - Nunjucks render promise
- */
-function render(...args) {
-  return new Promise((resolve, reject) => {
-    nunjucks.render(...args, (err, data) => err ? reject(err) : resolve(data))
-  });
-}
-
-/**
  * Gets the filepath for all files in directory
  * 
  * @param {String} dir - Directory to search
@@ -70,7 +67,7 @@ async function getFilePaths(dir) {
  * @returns {Array<Array>} - Tuple with filepath and contents
  */
 async function readFile(filepath) {
-  const contents = await fs.readFile(filepath);
+  const contents = await fs.readFile(filepath, 'utf8');
   return [ filepath, contents ]
 }
 
@@ -153,6 +150,16 @@ module.exports = async function upwrite(options) {
     return { meta, ctx };
   }
 
+  async function dynamicTemplate(tmpl) {
+    const contents = await fs.readFile(path.resolve(base, tmpl), 'utf8');
+    const { body, attributes } = frontmatter(contents.toString());
+    Object.entries(attributes).forEach(([filter, fn]) => {
+      const exec = Function(`return ${fn}`)();
+      if (typeof exec === 'function') env.addFilter(filter, exec);
+    });
+    return nunjucks.compile(body, env);
+  }
+
   // Get all filepaths, partition by markdown
   const [ rest, markdown ] = await getFilePaths(indir);
 
@@ -162,15 +169,15 @@ module.exports = async function upwrite(options) {
     .then((contents) => Promise.all(contents.map(generate)));
   
   // Write Nunjucks files
-  await Promise.all(posts.map(({ ctx, meta }) => {
+  await Promise.all(posts.map(async ({ ctx, meta }) => {
     const { template, ...fm } = ctx.fm;
     const data = {
       post: { html: ctx.html, fm },
       posts,
       page: feed.options,
     };
-    const name =  path.resolve(base, template || postTemplate);
-    return render(name, data).then((page) => fs.outputFile(path.join(outdir, meta.pathname, 'index.html'), page))
+    const tmpl = await dynamicTemplate(template || postTemplate);
+    return fs.outputFile(path.join(outdir, meta.pathname, 'index.html'), tmpl.render(data));
   }));
   
   const items = posts.map(({ ctx, meta }) => ({ content: ctx.html, ...ctx.fm, ...meta }));

@@ -167,13 +167,12 @@ module.exports = async function upwrite(options) {
   
   // Write Nunjucks files
   await Promise.all(posts.map(async ({ ctx, meta }) => {
-    const { template, ...fm } = ctx.fm;
     const data = {
       post: { html: ctx.html, fm },
       posts,
       page: feed.options,
     };
-    const tmpl = await dynamicTemplate(template || postTemplate);
+    const tmpl = await dynamicTemplate(fm.template || postTemplate);
     return fs.outputFile(path.join(outdir, meta.pathname, 'index.html'), tmpl.render(data));
   }));
   

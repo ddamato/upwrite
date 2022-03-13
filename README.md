@@ -90,6 +90,8 @@ template: templates/no-date.njk
 ---
 ```
 
+Notice that the `template` key is expecting the path relative to the [`feed.json`](#feedjson)
+
 ### Templates
 
 The templates are transformed using [`nunjucks`]. Much of the data collected through processing is found on a `post` key within the file. You'll commonly have the following basic template setup:
@@ -105,6 +107,28 @@ The templates are transformed using [`nunjucks`]. Much of the data collected thr
   <body>
     <datetime>{{ post.fm.date }}</datetime>
     <!-- Use the "safe" filter in Nunjucks to render `post.html` as html -->
+    <main>{{ post.html | safe }}</main>
+  </body>
+</html>
+```
+
+### Filters
+The ability to filter incoming data is important in [`nunjucks`]. You can prepare [`front-matter`]-like filters at the top of your entry template to include filters for your [`nunjucks`] environment. This can only occur in the templates referenced within the transformation (either the `template` key in the options, or the `template` key in a `.md` [`front-matter`]). The process cannot read [`front-matter`] added to files that are 
+included along the way.
+
+```astro
+---
+humandate: (date) => new Date(date).toDateString()
+---
+<!doctype>
+<html>
+  <head>
+    <!-- front-matter cannot be parsed in the head.njk file -->
+    {% include "head.njk" %}
+  </head>
+  <body>
+    <!-- Use the "humandate" filter created in the front-matter above -->
+    <datetime>{{ post.fm.date | humandate }}</datetime>
     <main>{{ post.html | safe }}</main>
   </body>
 </html>

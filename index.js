@@ -168,7 +168,7 @@ module.exports = async function upwrite(options) {
   // Write Nunjucks files
   await Promise.all(posts.map(async ({ ctx, meta }) => {
     const data = {
-      post: { html: ctx.html, fm },
+      post: ctx,
       posts,
       page: feed.options,
     };

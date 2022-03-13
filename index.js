@@ -179,7 +179,7 @@ module.exports = async function upwrite(options) {
   const items = posts.map(({ ctx, meta }) => ({ content: ctx.html, ...ctx.fm, ...meta }));
 
   // Prepare items for RSS feed
-  items.filter(({ date }) => !date).sort(byDate).map((item) => feed.addItem(item));
+  items.filter(({ date }) => date).sort(byDate).map((item) => feed.addItem(item));
   
   // Write the feed
   await fs.outputFile(path.join(outdir, `${name}.xml`), feed.rss2());

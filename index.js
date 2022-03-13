@@ -144,7 +144,7 @@ module.exports = async function upwrite(options) {
     // Data for Nunjucks render
     const ctx = context(contents.toString());
 
-    return { meta, ctx };
+    return { ...meta, ...ctx };
   }
 
   async function dynamicTemplate(tmpl) {
@@ -166,17 +166,19 @@ module.exports = async function upwrite(options) {
     .then((contents) => Promise.all(contents.map(generate)));
   
   // Write Nunjucks files
-  await Promise.all(posts.map(async ({ ctx, meta }) => {
+  await Promise.all(posts.map(async (post) => {
     const data = {
-      post: ctx,
+      post,
       posts,
       page: feed.options,
     };
-    const tmpl = await dynamicTemplate(ctx.fm.template || postTemplate);
-    return fs.outputFile(path.join(outdir, meta.pathname, 'index.html'), tmpl.render(data));
+    const tmpl = await dynamicTemplate(post.fm.template || postTemplate);
+    return fs.outputFile(path.join(outdir, post.pathname, 'index.html'), tmpl.render(data));
   }));
   
-  const items = posts.map(({ ctx, meta }) => ({ content: ctx.html, ...ctx.fm, ...meta }));
+  const items = posts.map((post) => {
+    return { content: post.html, link: post.link, id: post.id, ...post.fm, };
+  });
 
   // Prepare items for RSS feed
   items.filter(({ date }) => date).sort(byDate).map((item) => feed.addItem(item));

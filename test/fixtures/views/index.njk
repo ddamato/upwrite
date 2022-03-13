@@ -7,6 +7,7 @@ shorten: (str) => str.slice(0, 5);
     {% include "head.njk" %}
   </head>
   <body>
+    {% include "nav.njk" %}
     <h1>{{ post.fm.title | shorten }}</h1>
     <main>{{ post.html | safe }}</main>
   </body>

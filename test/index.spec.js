@@ -21,7 +21,7 @@ describe('upwrite', function () {
       rss: path.join(fixtures, 'feed.json'),
       input: 'posts/',
       output: '_output/',
-      template: 'template.njk',
+      template: 'views/index.njk',
     };
 
     await upwrite(options);

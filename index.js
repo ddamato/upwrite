@@ -8,18 +8,14 @@ const { Feed } = require('feed');
 const md = require('markdown-it')();
 const cwd = process.cwd();
 
-const env = new nunjucks.Environment();
-
-function requireFromString(src, filename) {
-  const m = new module.constructor();
-  m.paths = module.paths;
-  m._compile(src, filename);
-  return m.exports;
-}
-
 function getBase(filepath) {
   const { dir } = path.parse(filepath);
   return path.join(cwd, path.relative(cwd, dir));
+}
+
+function getEnv(tmpl, base) {
+  const { dir } = path.parse(tmpl);
+  return new nunjucks.Environment(new nunjucks.FileSystemLoader(path.join(base, dir)));
 }
 
 /**
@@ -97,6 +93,7 @@ module.exports = async function upwrite(options) {
   const outdir = path.resolve(base, output);
   const { name } = path.parse(rss);
   const feed = await getFeed(rss);
+  const env = getEnv(postTemplate, base);
 
   /**
    * Creates metadata for feed item
@@ -157,7 +154,7 @@ module.exports = async function upwrite(options) {
       const exec = Function(`return ${fn}`)();
       if (typeof exec === 'function') env.addFilter(filter, exec);
     });
-    return nunjucks.compile(body, env);
+    return new nunjucks.Template(body, env, tmpl);
   }
 
   // Get all filepaths, partition by markdown

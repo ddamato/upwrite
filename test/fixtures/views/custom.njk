@@ -1,0 +1,14 @@
+---
+shorten: (str) => str.slice(0, 5);
+---
+<!doctype>
+<html>
+  <head>
+    {% include "head.njk" %}
+  </head>
+  <body>
+    <datetime>{{ post.fm.date | humandate }}</datetime>
+    <h1>{{ post.fm.title | shorten }}</h1>
+    <main>{{ post.html | safe }}</main>
+  </body>
+</html>

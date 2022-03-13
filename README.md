@@ -1,10 +1,14 @@
-# upwrite
+<a href="https://ddamato.github.io/upwrite">
+  <img width="200" src="upwrite-logo.svg">
+</a>
+
 [![npm version](https://img.shields.io/npm/v/upwrite.svg)](https://www.npmjs.com/package/upwrite)
 
 Configuring a blog is annoying, let's do better.
 
 - Maintains folder structure of files for posts
 - Uses [`markdown-it`] to transform Markdown into HTML (`post.html` in templates).
+- Enhances [`front-matter`] to set [`nunjucks`] filters in templates for string processing.
 - Pipes [`front-matter`] to [`nunjucks`] templates under `fm` key (`post.fm.title`).
 - Setup [`front-matter`] for RSS feed metadata.
 - Write RSS feed from posts using [`feed`].

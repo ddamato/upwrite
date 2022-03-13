@@ -1,5 +1,5 @@
 ---
-shorten: (str) => str.slice(0, 5);
+humandate: (date) => new Date(date).toDateString();
 ---
 <!doctype>
 <html>
@@ -8,7 +8,6 @@ shorten: (str) => str.slice(0, 5);
   </head>
   <body>
     <datetime>{{ post.fm.date | humandate }}</datetime>
-    <h1>{{ post.fm.title | shorten }}</h1>
     <main>{{ post.html | safe }}</main>
   </body>
 </html>

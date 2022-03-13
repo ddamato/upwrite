@@ -172,14 +172,14 @@ module.exports = async function upwrite(options) {
       posts,
       page: feed.options,
     };
-    const tmpl = await dynamicTemplate(fm.template || postTemplate);
+    const tmpl = await dynamicTemplate(ctx.fm.template || postTemplate);
     return fs.outputFile(path.join(outdir, meta.pathname, 'index.html'), tmpl.render(data));
   }));
   
   const items = posts.map(({ ctx, meta }) => ({ content: ctx.html, ...ctx.fm, ...meta }));
 
   // Prepare items for RSS feed
-  items.sort(byDate).map((item) => feed.addItem(item));
+  items.filter(({ date }) => !date).sort(byDate).map((item) => feed.addItem(item));
   
   // Write the feed
   await fs.outputFile(path.join(outdir, `${name}.xml`), feed.rss2());

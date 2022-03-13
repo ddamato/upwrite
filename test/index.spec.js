@@ -19,9 +19,9 @@ describe('upwrite', function () {
     
     const options = {
       rss: path.join(fixtures, 'feed.json'),
-      input: 'posts/',
+      input: 'website/',
       output: '_output/',
-      template: 'views/index.njk',
+      template: 'views/post.njk',
     };
 
     await upwrite(options);
@@ -30,7 +30,7 @@ describe('upwrite', function () {
       path.join(fixtures, options.output, 'feed.xml'),
       path.join(fixtures, options.output, 'sitemap.txt'),
       path.join(fixtures, options.output, options.input, 'media.txt'),
-      path.join(fixtures, options.output, options.input, 'nested', 'video.txt')
+      path.join(fixtures, options.output, options.input, 'posts', 'video.txt')
     ];
     expect(await allFilesExist(files)).to.be.true;
   });

@@ -69,7 +69,7 @@ upwrite -i blog -o public -r rss.json -t nunjucks/blog.html
 
 ### Posts
 
-Each post is a `.md` file with [`front-matter`] at the top with metadata expected to populate the RSS feed. The metadata is piped into the `addItem()` method of the [`feed`] project. The following keys are required for each post.
+Each post is a `.md` file with [`front-matter`] at the top with metadata expected to populate the RSS feed. The metadata is piped into the `addItem()` method of the [`feed`] project.
 
 ```md
 ---
@@ -78,6 +78,8 @@ description: And I think you all should read it
 date: 2013-12-29 17:16:55
 ---
 ```
+
+If you want the post to be rendered within the RSS feed, you must include the `date` field. To render without including in the RSS feed, omit the `date` field.
 
 You may include a special `template` key to override the base template for specific posts.
 

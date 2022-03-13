@@ -8,6 +8,7 @@ Configuring a blog is annoying, let's do better.
 
 - Maintains folder structure of files for posts
 - Uses [`markdown-it`] to transform Markdown into HTML (`post.html` in templates).
+- Provides all page data for building navigation or recent article lists (`posts` in templates).
 - Enhances [`front-matter`] to set [`nunjucks`] filters in templates for string processing.
 - Pipes [`front-matter`] to [`nunjucks`] templates under `fm` key (`post.fm.title`).
 - Setup [`front-matter`] for RSS feed metadata.

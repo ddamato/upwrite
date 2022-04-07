@@ -141,6 +141,48 @@ humandate: (date) => new Date(date).toDateString()
 </html>
 ```
 
+### Navigation
+
+You can generate navigation using the different keys injected into each page.
+
+```html
+<!doctype>
+<html>
+  <head>
+    <!-- 
+      page are the keys found in feed.json.
+      post.fm are the keys written in the .md front-matter
+    -->
+    {{ page.title }} - {{ post.fm.title }}
+    {% include "head.njk" %}
+  </head>
+  <body>
+   <nav>
+      <ul>
+        <!-- 
+          Using item to indicate the posts in the loop versus this current post.
+          We only want entries that do NOT have a date.
+          These are static pages (like 'home' or 'about').
+          You can also sort by giving these pages additional front-matter to sort by.
+        -->
+        {% for item in posts %} {% if not item.fm.date %}
+        <li>
+          <a href="{{ item.pathname }}">{{ item.fm.title }}</a>
+        </li>
+        {% endif %} {% endfor %}
+      </ul>
+    </nav>
+  </body>
+</html>
+```
+| parent | keys | definition |
+| ------ | ---- | ---------- |
+| `page` | `{ title, description, url }` | Data direct from `feed.json`|
+| `posts` | `[{ fm, html, pathname, link }]` | Represents all posts as an array of post objects |
+| `post` | `{ fm, html, pathname, link }` | Represents this post with the front-matter (`fm`) and markdown rendered as HTML (`html`) | 
+
+The `pathname` is the relative path to the post. The `link` is the absolute path to the post.
+
 ### `feed.json`
 
 This `.json` file is the starting point to create the RSS feed. It has the following required fields:
@@ -153,7 +195,7 @@ This `.json` file is the starting point to create the RSS feed. It has the follo
 }
 ```
 
-The `link` field is *escpecially required* as it's used to construct post urls alongside the file structure of your project. The name of this file (`feed`) is used to name the resulting `.xml` file of the feed (`feed.xml`) and can be changed in the [options](#options).
+The `link` field is *especially required* as it's used to construct post urls alongside the file structure of your project. The name of this file (`feed`) is used to name the resulting `.xml` file of the feed (`feed.xml`) and can be changed in the [options](#options).
 
 The path to the `feed.json` also sets the *base* of your working directory. This allows you to change where all the other filepaths start from.
 

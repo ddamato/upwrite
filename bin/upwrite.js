@@ -7,10 +7,10 @@ const upwrite = require('../');
 
 program
   .version(version, '-v, --version')
-  .option('-i, --input', 'Path to markdown files', 'posts/')
-  .option('-o, --output', 'Directory for the output', '_site/')
-  .option('-r, --rss', 'Path to the rss configuration JSON file', 'feed.json')
-  .option('-t, --template', 'Path of the Nunjucks template to use', 'templates/post.njk')
+  .option('-i, --input <string>', 'Path to markdown files', 'posts/')
+  .option('-o, --output <string>', 'Directory for the output', '_site/')
+  .option('-r, --rss <string>', 'Path to the rss configuration JSON file', 'feed.json')
+  .option('-t, --template <string>', 'Path of the Nunjucks template to use', 'templates/post.njk')
   .parse();
 
 upwrite(program.opts())
